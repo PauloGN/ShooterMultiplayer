@@ -89,12 +89,18 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void CreateGameSession();
 
+	UFUNCTION(BlueprintCallable)
+		void JoinGameSession();
+
 	//this function will be bound to the delegate variable
 	void OnCreateSessionComplete(FName sessionName, bool bWasSuccessful);
+	void OnFindSessionsComplete(bool bWasSuccessful);
 
 private:
 
 	//this is a delegate variable and a function will be bind to this
 	FOnCreateSessionCompleteDelegate createSessionCompleteDelegate;
+	FOnFindSessionsCompleteDelegate findSessionsCompleteDelegate;
 
+	TSharedPtr<FOnlineSessionSearch> sessionSearch;
 };

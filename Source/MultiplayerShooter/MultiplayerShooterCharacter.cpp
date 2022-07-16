@@ -16,8 +16,8 @@
 // AMultiplayerShooterCharacter
 
 AMultiplayerShooterCharacter::AMultiplayerShooterCharacter() :
-	createSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(
-		this, &ThisClass::OnCreateSessionComplete))
+	createSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete)),
+	findSessionsCompleteDelegate(FOnFindSessionsCompleteDelegate::CreateUObject(this, &ThisClass::OnFindSessionsComplete))
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -153,10 +153,32 @@ void AMultiplayerShooterCharacter::CreateGameSession()
 	sessionSettings->bAllowJoinViaPresence = true;
 	sessionSettings->bShouldAdvertise = true;
 	sessionSettings->bUsesPresence = true;
+	sessionSettings->bUseLobbiesIfAvailable = true;
 	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 
 
 	onlineSessionInterface->CreateSession(*localPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *sessionSettings);
+}
+
+void AMultiplayerShooterCharacter::JoinGameSession()
+{
+	//Find Game Session
+	if (!onlineSessionInterface.IsValid())
+	{
+		return;
+	}
+
+	onlineSessionInterface->AddOnFindSessionsCompleteDelegate_Handle(findSessionsCompleteDelegate);
+
+	sessionSearch = MakeShareable(new FOnlineSessionSearch());
+	sessionSearch->MaxSearchResults = 10000;
+	sessionSearch->bIsLanQuery = false;
+	sessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+
+	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+
+	onlineSessionInterface->FindSessions(*localPlayer->GetPreferredUniqueNetId(), sessionSearch.ToSharedRef());
+
 }
 
 void AMultiplayerShooterCharacter::OnCreateSessionComplete(FName sessionName, bool bWasSuccessful)
@@ -188,6 +210,26 @@ void AMultiplayerShooterCharacter::OnCreateSessionComplete(FName sessionName, bo
 		}
 	}
 
+}
+
+void AMultiplayerShooterCharacter::OnFindSessionsComplete(bool bWasSuccessful)
+{
+	for (auto results:sessionSearch->SearchResults)
+	{
+		FString id = results.GetSessionIdStr();
+		FString user = results.Session.OwningUserName;
+
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.0f,
+				FColor::Cyan,
+				FString::Printf(TEXT("Id: %S, User: %s"), *id, *user)
+			);
+		}
+
+	}
 }
 
 void AMultiplayerShooterCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
