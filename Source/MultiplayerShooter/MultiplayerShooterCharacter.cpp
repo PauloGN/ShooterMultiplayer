@@ -9,12 +9,15 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "OnlineSubsystem.h"
-#include "Interfaces/OnlineSessionInterface.h"
+#include "OnlineSessionSettings.h"
+
 
 //////////////////////////////////////////////////////////////////////////
 // AMultiplayerShooterCharacter
 
-AMultiplayerShooterCharacter::AMultiplayerShooterCharacter()
+AMultiplayerShooterCharacter::AMultiplayerShooterCharacter() :
+	createSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(
+		this, &ThisClass::OnCreateSessionComplete))
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -53,11 +56,12 @@ AMultiplayerShooterCharacter::AMultiplayerShooterCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-
+	// need to include "OnlineSubsystem.h"
 	IOnlineSubsystem* onlineSubSystem = IOnlineSubsystem::Get();
 
 	if (onlineSubSystem)
 	{
+		//The session interface handles creating, managing and destroying game sessions.It also handles searching for sessions and other matchmaking functionality.
 		onlineSessionInterface = onlineSubSystem->GetSessionInterface();
 
 		if (GEngine)
@@ -106,12 +110,13 @@ void AMultiplayerShooterCharacter::OpenLobby()
 	{
 		//opens the level nane ? as a listen server
 		world->ServerTravel("/Game/ThirdPerson/Maps/Lobby?listen");
-	    //D:/Disk D / Unreal / Projetos / MultiplayerShooter / Content / ThirdPerson / Maps / Lobby.umap
+		//D:/Disk D / Unreal / Projetos / MultiplayerShooter / Content / ThirdPerson / Maps / Lobby.umap
 	}
 }
 
 void AMultiplayerShooterCharacter::CallOpenLevel(const FString& Address)
 {
+	//need to include "Kismet/GameplayStatics.h"
 	UGameplayStatics::OpenLevel(this, *Address);
 }
 
@@ -120,8 +125,69 @@ void AMultiplayerShooterCharacter::CallClientTravel(const FString& Address)
 	APlayerController* playerController = GetGameInstance()->GetFirstLocalPlayerController();
 	if (playerController)
 	{
-		playerController->ClientTravel(Address,ETravelType::TRAVEL_Absolute);
+		playerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
 	}
+}
+
+void AMultiplayerShooterCharacter::CreateGameSession()
+{
+	//Called when pressed the key 1
+	if (!onlineSessionInterface.IsValid())
+	{
+		return;
+	}
+
+	FNamedOnlineSession* existingSession = onlineSessionInterface->GetNamedSession(NAME_GameSession);
+
+	if (existingSession != nullptr)
+	{
+		onlineSessionInterface->DestroySession(NAME_GameSession);
+	}
+
+	onlineSessionInterface->AddOnCreateSessionCompleteDelegate_Handle(createSessionCompleteDelegate);
+
+	TSharedPtr<FOnlineSessionSettings> sessionSettings = MakeShareable(new FOnlineSessionSettings());
+	sessionSettings->bIsLANMatch = false;
+	sessionSettings->NumPublicConnections = 4;
+	sessionSettings->bAllowJoinInProgress = true;
+	sessionSettings->bAllowJoinViaPresence = true;
+	sessionSettings->bShouldAdvertise = true;
+	sessionSettings->bUsesPresence = true;
+	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+
+
+	onlineSessionInterface->CreateSession(*localPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *sessionSettings);
+}
+
+void AMultiplayerShooterCharacter::OnCreateSessionComplete(FName sessionName, bool bWasSuccessful)
+{
+	if (bWasSuccessful)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage
+			(
+				-1,
+				15.0f,
+				FColor::Blue,
+				FString::Printf(TEXT("Created Session %s"), *sessionName.ToString())
+			);
+		}
+	}
+	else
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage
+			(
+				-1,
+				15.0f,
+				FColor::Red,
+				FString(TEXT("Faild to create session..."))
+			);
+		}
+	}
+
 }
 
 void AMultiplayerShooterCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
@@ -162,7 +228,7 @@ void AMultiplayerShooterCharacter::MoveForward(float Value)
 
 void AMultiplayerShooterCharacter::MoveRight(float Value)
 {
-	if ( (Controller != nullptr) && (Value != 0.0f) )
+	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
