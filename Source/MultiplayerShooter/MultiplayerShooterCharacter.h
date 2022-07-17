@@ -95,12 +95,13 @@ protected:
 	//this function will be bound to the delegate variable
 	void OnCreateSessionComplete(FName sessionName, bool bWasSuccessful);
 	void OnFindSessionsComplete(bool bWasSuccessful);
+	void OnJoinSessionComplete(FName sessionName, EOnJoinSessionCompleteResult::Type result);
 
 private:
 
 	//this is a delegate variable and a function will be bind to this
 	FOnCreateSessionCompleteDelegate createSessionCompleteDelegate;
 	FOnFindSessionsCompleteDelegate findSessionsCompleteDelegate;
-
 	TSharedPtr<FOnlineSessionSearch> sessionSearch;
+	FOnJoinSessionCompleteDelegate joinSessionCompleteDelegate;
 };
