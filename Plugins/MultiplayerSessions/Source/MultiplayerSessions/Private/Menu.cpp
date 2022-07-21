@@ -5,8 +5,12 @@
 #include "Components/Button.h"
 #include "MultiplayerSessionsSubsystem.h"
 
-void UMenu::MenuSetup()
+void UMenu::MenuSetup(int32 NumPublicConnections, FString MatchType)
 {
+	//Setting Up member variables
+	numPublicConnections = NumPublicConnections;
+	matchType = MatchType;
+
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
 	bIsFocusable = true;
@@ -26,7 +30,7 @@ void UMenu::MenuSetup()
 		}
 	}
 
-	//Geting the MultiplayerSessionsSubsystem throug the UGameInstance Class
+	//Geting the MultiplayerSessionsSubsystem through the UGameInstance Class
 
 	UGameInstance* gameInstance = GetGameInstance();
 
@@ -57,6 +61,12 @@ bool UMenu::Initialize()
 	return false;
 }
 
+void UMenu::OnLevelRemovedFromWorld(ULevel* Inlevel, UWorld* InWorld)
+{
+	MenuTearDown();
+	Super::OnLevelRemovedFromWorld(Inlevel, InWorld);
+}
+
 void UMenu::Host_btnClicked()
 {
 	if (GEngine)
@@ -71,7 +81,8 @@ void UMenu::Host_btnClicked()
 
 	if (multiplayerSessionsSubsystem)
 	{
-		multiplayerSessionsSubsystem->CreateSession(4, FString("FreeForAll"));
+		multiplayerSessionsSubsystem->CreateSession(numPublicConnections, matchType);
+		OpenLobby();
 	}
 }
 
@@ -83,4 +94,33 @@ void UMenu::Join_btnClicked()
 		FColor::Blue,
 		TEXT("Join Button Clicked...")
 	);
+}
+
+void UMenu::MenuTearDown()
+{
+	RemoveFromParent();
+	UWorld* world = GetWorld();
+
+	if (world)
+	{
+		APlayerController* playerController = world->GetFirstPlayerController();
+		if (playerController)
+		{
+			FInputModeGameOnly inputModeData;
+			playerController->SetInputMode(inputModeData);
+			playerController->SetShowMouseCursor(false);
+		}
+	}
+
+}
+
+void UMenu::OpenLobby()
+{
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		//opens the level nane ? as a listen server
+		world->ServerTravel("/Game/ThirdPerson/Maps/Lobby?listen");
+		//D:/Disk D / Unreal / Projetos / MultiplayerShooter / Content / ThirdPerson / Maps / Lobby.umap
+	}
 }
