@@ -18,5 +18,26 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void MenuSetup();
+
+protected:
+
+	virtual bool Initialize() override;
+
+private:
+
+	UPROPERTY(Meta = (BindWidget))
+	class UButton* Host_btn;
+
+	UPROPERTY(Meta = (BindWidget))
+	UButton* Join_btn;
 	
+	UFUNCTION()
+	void Host_btnClicked();
+
+	UFUNCTION()
+	void Join_btnClicked();
+
+	//Access to the Multiplayer Subsystem
+	class UMultiplayerSessionsSubsystem* multiplayerSessionsSubsystem;
+
 };
