@@ -39,6 +39,11 @@ void UMenu::MenuSetup(int32 NumPublicConnections, FString MatchType)
 		multiplayerSessionsSubsystem = gameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
 	}
 
+	if (multiplayerSessionsSubsystem)
+	{
+		multiplayerSessionsSubsystem->multiplayerOnCreateSessionComplete.AddDynamic(this, &ThisClass::OnCreateSession);
+	}
+
 }
 
 bool UMenu::Initialize()
@@ -67,22 +72,43 @@ void UMenu::OnLevelRemovedFromWorld(ULevel* Inlevel, UWorld* InWorld)
 	Super::OnLevelRemovedFromWorld(Inlevel, InWorld);
 }
 
+void UMenu::OnCreateSession(bool bWasSuccessful)
+{
+
+	if (bWasSuccessful)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.0f,
+				FColor::Green,
+				TEXT("CallBackFunction called...")
+			);
+		}
+		OpenLobby();
+	}
+	else
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.0f,
+				FColor::Red,
+				TEXT("CallBackFunction called create session Failed...")
+			);
+		}
+
+	}
+}
+
 void UMenu::Host_btnClicked()
 {
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			- 1,
-			15.0f,
-			FColor::Blue,
-			TEXT("Host Button Clicked...")
-			);
-	}
 
 	if (multiplayerSessionsSubsystem)
 	{
 		multiplayerSessionsSubsystem->CreateSession(numPublicConnections, matchType);
-		OpenLobby();
 	}
 }
 
