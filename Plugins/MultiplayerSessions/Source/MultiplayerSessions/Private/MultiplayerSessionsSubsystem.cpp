@@ -57,7 +57,6 @@ void UMultiplayerSessionsSubsystem::CreateSession(int32 NumPublicConections, FSt
 		
 		//Broadcast our own custom delegate
 		multiplayerOnCreateSessionComplete.Broadcast(false);
-
 	}
 
 	if (GEngine)
