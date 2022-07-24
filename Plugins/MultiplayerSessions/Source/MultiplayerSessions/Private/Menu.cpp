@@ -5,6 +5,25 @@
 #include "Components/Button.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
+#include "OnlineSubsystem.h"
+
+namespace
+{
+	void PrintScreen(const FString& text, FColor color = FColor::Cyan)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.0f,
+				color,
+				text
+			);
+		}
+	}
+}
+
+
 
 void UMenu::MenuSetup(int32 NumPublicConnections, FString MatchType)
 {
@@ -34,9 +53,9 @@ void UMenu::MenuSetup(int32 NumPublicConnections, FString MatchType)
 	//Geting the MultiplayerSessionsSubsystem through the UGameInstance Class
 
 	UGameInstance* gameInstance = GetGameInstance();
-
 	if (gameInstance)
 	{
+		//through this subsystem we can call functions that are into MultiplayerSessionSubsystem class
 		multiplayerSessionsSubsystem = gameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
 	}
 
@@ -69,7 +88,7 @@ bool UMenu::Initialize()
 		Join_btn->OnClicked.AddDynamic(this, &UMenu::Join_btnClicked);
 	}
 
-	return false;
+	return true;
 }
 
 void UMenu::OnLevelRemovedFromWorld(ULevel* Inlevel, UWorld* InWorld)
@@ -84,38 +103,59 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 
 	if (bWasSuccessful)
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.0f,
-				FColor::Green,
-				TEXT("CallBackFunction called...")
-			);
-		}
+
+		PrintScreen("CallBackFunction called On Create Session GOOD...", FColor::Green);
+
 		OpenLobby();
 	}
 	else
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.0f,
-				FColor::Red,
-				TEXT("CallBackFunction called create session Failed...")
-			);
-		}
-
+		PrintScreen("CallBackFunction On Create Session Faild...", FColor::Red);
 	}
 }
 
 void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
 {
+
+	if (multiplayerSessionsSubsystem == nullptr)
+	{
+		return;
+	}
+
+	for (auto result : SessionResults)
+	{
+		FString settingsValue;//this FString will return and be filled up acording to the key "MatchType"
+		result.Session.SessionSettings.Get(FName("MatchType"), settingsValue);
+
+		if (settingsValue == matchType)
+		{
+			PrintScreen("ACHOU: "+settingsValue);
+			multiplayerSessionsSubsystem->JoinSession(result);
+			return;
+		}
+	}
 }
 
 void UMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 {
+	IOnlineSubsystem* subsystem = IOnlineSubsystem::Get();
+
+	if (subsystem)
+	{
+		IOnlineSessionPtr sessionInterface = subsystem->GetSessionInterface();
+
+		if (sessionInterface)
+		{
+			FString Address;
+			sessionInterface->GetResolvedConnectString(NAME_GameSession, Address);
+
+			APlayerController* playerController = GetGameInstance()->GetFirstLocalPlayerController();
+			if (playerController)
+			{
+				playerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+			}
+		}
+	}
 }
 
 void UMenu::OnDestroySession(bool bWasSuccessful)
@@ -128,7 +168,6 @@ void UMenu::OnStartSession(bool bWasSuccessful)
 
 void UMenu::Host_btnClicked()
 {
-
 	if (multiplayerSessionsSubsystem)
 	{
 		multiplayerSessionsSubsystem->CreateSession(numPublicConnections, matchType);
@@ -137,12 +176,11 @@ void UMenu::Host_btnClicked()
 
 void UMenu::Join_btnClicked()
 {
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		15.0f,
-		FColor::Blue,
-		TEXT("Join Button Clicked...")
-	);
+
+	if (multiplayerSessionsSubsystem)
+	{
+		multiplayerSessionsSubsystem->FindSessions(10000);
+	}
 }
 
 void UMenu::MenuTearDown()

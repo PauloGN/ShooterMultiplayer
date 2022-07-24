@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Interfaces/OnlineSessionInterface.h"
+
 #include "MultiplayerSessionsSubsystem.generated.h"
 
 
@@ -56,25 +57,26 @@ protected:
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnFindSessionComplete(bool bWasSuccessful);
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
-	void OndestroySessionComplete(FName SessionName, bool bWasSuccessful);
+	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnStartSessionComplete(FName SessionName, bool bWasSuccessful);
 
 private:
 	IOnlineSessionPtr sessionInterface;
 	TSharedPtr<FOnlineSessionSettings> lastSessionSettings;
+	TSharedPtr<FOnlineSessionSearch> lastSessionSearch;
 	//
 	// To add to the online session interface delegate list
 	// These delegates will be bind to the multiplayerSessionSubsystem's internal call backs 
 	//
 	FOnCreateSessionCompleteDelegate createSessionCompleteDelegate;
-	FDelegateHandle createSessiomCompleteDelegateHandle;
+	FDelegateHandle createSessionCompleteDelegateHandle;
 	FOnFindSessionsCompleteDelegate findSessionsCompleteDelegate;
-	FDelegateHandle findSessiomCompleteDelegateHandle;
+	FDelegateHandle findSessionsCompleteDelegateHandle;
 	FOnJoinSessionCompleteDelegate joinSessionCompleteDelegate;
-	FDelegateHandle joinSessiomCompleteDelegateHandle;
+	FDelegateHandle joinSessionCompleteDelegateHandle;
 	FOnDestroySessionCompleteDelegate destroySessionCompleteDelegate;
-	FDelegateHandle destroySessiomCompleteDelegateHandle;
+	FDelegateHandle destroySessionCompleteDelegateHandle;
 	FOnStartSessionCompleteDelegate startSessionCompleteDelegate;
-	FDelegateHandle startSessiomCompleteDelegateHandle;
+	FDelegateHandle startSessionCompleteDelegateHandle;
 
 };

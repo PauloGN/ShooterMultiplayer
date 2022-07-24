@@ -39,10 +39,10 @@ protected:
 
 private:
 
-	UPROPERTY(Meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	class UButton* Host_btn;
 
-	UPROPERTY(Meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	UButton* Join_btn;
 	
 	UFUNCTION()
