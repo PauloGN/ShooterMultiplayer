@@ -4,21 +4,6 @@
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
 
-namespace
-{
-	void PrintScreen(const FString& text, FColor color = FColor::Cyan)
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.0f,
-				color,
-				text
-			);
-		}
-	}
-}
 
 
 UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem() :
@@ -106,7 +91,7 @@ void UMultiplayerSessionsSubsystem::FindSessions(int32 MaxSearchResults)
 
 	if (!bWasSessionFound)
 	{
-		PrintScreen("FIND SESSIONS on multiplayer system class Failed", FColor::Red);
+		
 
 		sessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(findSessionsCompleteDelegateHandle);
 		multiplayerOnFindSessionsComplete.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
@@ -154,7 +139,7 @@ void UMultiplayerSessionsSubsystem::OnCreateSessionComplete(FName SessionName, b
 
 void UMultiplayerSessionsSubsystem::OnFindSessionComplete(bool bWasSuccessful)
 {
-	PrintScreen("ON_FIND_SESSION_COMPLETE on multiplayer system class");
+	
 
 	if (sessionInterface)
 	{
@@ -163,7 +148,7 @@ void UMultiplayerSessionsSubsystem::OnFindSessionComplete(bool bWasSuccessful)
 
 	if (lastSessionSearch->SearchResults.Num() <= 0)
 	{
-		PrintScreen("ON_FIND_SESSION_COMPLETE on multiplayer system class lastSessionSearch->SearchResults.Num() <= 0", FColor::Red);
+		
 
 		multiplayerOnFindSessionsComplete.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
 		return;
