@@ -64,7 +64,7 @@ AMultiplayerShooterCharacter::AMultiplayerShooterCharacter() :
 	{
 		//The session interface handles creating, managing and destroying game sessions.It also handles searching for sessions and other matchmaking functionality.
 		onlineSessionInterface = onlineSubSystem->GetSessionInterface();
-
+		/*
 		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage
@@ -75,6 +75,7 @@ AMultiplayerShooterCharacter::AMultiplayerShooterCharacter() :
 				FString::Printf(TEXT("Found Subsystem %s"), *onlineSubSystem->GetSubsystemName().ToString())
 			);
 		}
+		*/
 	}
 }
 

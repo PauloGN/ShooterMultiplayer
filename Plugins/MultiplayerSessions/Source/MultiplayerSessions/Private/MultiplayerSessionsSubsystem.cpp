@@ -4,21 +4,6 @@
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
 
-namespace
-{
-	void PrintScreenM(const FString& text, FColor color = FColor::Cyan)
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.0f,
-				color,
-				text
-			);
-		}
-	}
-}
 
 UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem() :
 	createSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete)),
@@ -63,6 +48,7 @@ void UMultiplayerSessionsSubsystem::CreateSession(int32 NumPublicConections, FSt
 	lastSessionSettings->bUsesPresence = true;
 	lastSessionSettings->bUseLobbiesIfAvailable = true;
 	lastSessionSettings->Set(FName("MatchType"), MatchType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	lastSessionSettings->BuildUniqueId = 1;
 
 	//Creating the session
 	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
@@ -106,7 +92,16 @@ void UMultiplayerSessionsSubsystem::FindSessions(int32 MaxSearchResults)
 	if (!bWasSessionFound)
 	{
 		
-		PrintScreenM("FIND SESSIONS on multiplayer system class Failed", FColor::Red);
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.0f,
+				FColor::Red,
+				TEXT("FIND SESSIONS on multiplayer system class Failed")
+			);
+		}
+
 		sessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(findSessionsCompleteDelegateHandle);
 		multiplayerOnFindSessionsComplete.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
 	}
@@ -154,7 +149,16 @@ void UMultiplayerSessionsSubsystem::OnCreateSessionComplete(FName SessionName, b
 void UMultiplayerSessionsSubsystem::OnFindSessionComplete(bool bWasSuccessful)
 {
 	
-	PrintScreenM("ON_FIND_SESSION_COMPLETE on multiplayer system class");
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			15.0f,
+			FColor::Cyan,
+			TEXT("ON_FIND_SESSION_COMPLETE on multiplayer system class")
+		);
+	}
+
 	if (sessionInterface)
 	{
 		sessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(findSessionsCompleteDelegateHandle);
@@ -162,8 +166,16 @@ void UMultiplayerSessionsSubsystem::OnFindSessionComplete(bool bWasSuccessful)
 
 	if (lastSessionSearch->SearchResults.Num() <= 0)
 	{
-		
-		PrintScreenM("ON_FIND_SESSION_COMPLETE on multiplayer system class lastSessionSearch->SearchResults.Num() <= 0", FColor::Red);
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.0f,
+				FColor::Red,
+				TEXT("ON_FIND_SESSION_COMPLETE on multiplayer system class lastSessionSearch->SearchResults.Num() <= 0")
+			);
+		}
+
 		multiplayerOnFindSessionsComplete.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
 		return;
 	}

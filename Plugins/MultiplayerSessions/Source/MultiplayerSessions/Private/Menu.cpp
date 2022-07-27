@@ -7,23 +7,6 @@
 #include "OnlineSessionSettings.h"
 #include "OnlineSubsystem.h"
 
-namespace
-{
-	void PrintScreen(const FString& text, FColor color = FColor::Cyan)
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.0f,
-				color,
-				text
-			);
-		}
-	}
-}
-
-
 
 void UMenu::MenuSetup(int32 NumPublicConnections, FString MatchType)
 {
@@ -103,14 +86,29 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 
 	if (bWasSuccessful)
 	{
-
-		PrintScreen("CallBackFunction called On Create Session GOOD...", FColor::Green);
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.0f,
+				FColor::Green,
+				TEXT("CallBackFunction called On Create Session GOOD...")
+			);
+		}
 
 		OpenLobby();
 	}
 	else
 	{
-		PrintScreen("CallBackFunction On Create Session Faild...", FColor::Red);
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.0f,
+				FColor::Red,
+				TEXT("CallBackFunction On Create Session Faild...")
+			);
+		}
 	}
 }
 
@@ -129,7 +127,17 @@ void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResu
 
 		if (settingsValue == matchType)
 		{
-			PrintScreen("ACHOU: "+settingsValue);
+
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(
+					-1,
+					15.0f,
+					FColor::Red,
+					FString::Printf(TEXT("ACHOU: %s"), *settingsValue)
+				);
+			}
+
 			multiplayerSessionsSubsystem->JoinSession(result);
 			return;
 		}
@@ -149,9 +157,29 @@ void UMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 			FString Address;
 			sessionInterface->GetResolvedConnectString(NAME_GameSession, Address);
 
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(
+					1,//Replace
+					60.0f,
+					FColor::Yellow,
+					FString::Printf(TEXT("Pegou IP: %s"),*Address)
+				);
+			}
+
 			APlayerController* playerController = GetGameInstance()->GetFirstLocalPlayerController();
 			if (playerController)
 			{
+				if (GEngine)
+				{
+					GEngine->AddOnScreenDebugMessage(
+						1,//Replace
+						30.0f,
+						FColor::Green,
+						FString::Printf(TEXT("Mandou Entrar"), *Address)
+					);
+				}
+
 				playerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
 			}
 		}
