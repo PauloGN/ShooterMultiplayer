@@ -8,11 +8,12 @@
 #include "OnlineSubsystem.h"
 
 
-void UMenu::MenuSetup(int32 NumPublicConnections, FString MatchType)
+void UMenu::MenuSetup(int32 NumPublicConnections, FString MatchType, FString PathToLobby)
 {
 	//Setting Up member variables
 	numPublicConnections = NumPublicConnections;
 	matchType = MatchType;
+	pathToLobby = FString::Printf(TEXT("%s?listen"), *PathToLobby);
 
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
@@ -235,7 +236,7 @@ void UMenu::OpenLobby()
 	if (world)
 	{
 		//opens the level nane ? as a listen server
-		world->ServerTravel("/Game/ThirdPerson/Maps/Lobby?listen");
+		world->ServerTravel(pathToLobby);
 		//D:/Disk D / Unreal / Projetos / MultiplayerShooter / Content / ThirdPerson / Maps / Lobby.umap
 	}
 }
