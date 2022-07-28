@@ -110,6 +110,7 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 				TEXT("CallBackFunction On Create Session Faild...")
 			);
 		}
+		Host_btn->SetIsEnabled(true);
 	}
 }
 
@@ -143,6 +144,12 @@ void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResu
 			return;
 		}
 	}
+
+	if (!bWasSuccessful || SessionResults.Num() == 0)
+	{
+		Join_btn->SetIsEnabled(true);
+	}
+
 }
 
 void UMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
@@ -185,6 +192,12 @@ void UMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 			}
 		}
 	}
+
+	if (Result != EOnJoinSessionCompleteResult::Success)
+	{
+		Join_btn->SetIsEnabled(true);
+	}
+
 }
 
 void UMenu::OnDestroySession(bool bWasSuccessful)
@@ -197,6 +210,7 @@ void UMenu::OnStartSession(bool bWasSuccessful)
 
 void UMenu::Host_btnClicked()
 {
+	Host_btn->SetIsEnabled(false);
 	if (multiplayerSessionsSubsystem)
 	{
 		multiplayerSessionsSubsystem->CreateSession(numPublicConnections, matchType);
@@ -205,7 +219,7 @@ void UMenu::Host_btnClicked()
 
 void UMenu::Join_btnClicked()
 {
-
+	Join_btn->SetIsEnabled(false);
 	if (multiplayerSessionsSubsystem)
 	{
 		multiplayerSessionsSubsystem->FindSessions(10000);

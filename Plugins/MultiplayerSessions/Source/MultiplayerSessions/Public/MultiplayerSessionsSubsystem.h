@@ -79,4 +79,9 @@ private:
 	FOnStartSessionCompleteDelegate startSessionCompleteDelegate;
 	FDelegateHandle startSessionCompleteDelegateHandle;
 
+	//handleling create and destroy sessions
+	bool bCreateSessionOnDestroy{ false };
+	int32 lastNumPublicConnections;
+	FString lastMatchType;
+
 };
