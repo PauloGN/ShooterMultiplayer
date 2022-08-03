@@ -33,4 +33,9 @@ private:
 
 public:	
 
+	void MoveForward(float Value);
+	void MoveRight(float Value);
+	void TurnRight(float Value);
+	void LookUp(float Value);
+
 };

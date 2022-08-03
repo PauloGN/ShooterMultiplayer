@@ -28,7 +28,6 @@ void ARevenantCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 }
-
 // Called every frame
 void ARevenantCharacter::Tick(float DeltaTime)
 {
@@ -40,6 +39,51 @@ void ARevenantCharacter::Tick(float DeltaTime)
 void ARevenantCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
+	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ARevenantCharacter::Jump);
+
+	PlayerInputComponent->BindAxis(TEXT("Move Forward / Backward"), this, &ThisClass::MoveForward);
+	PlayerInputComponent->BindAxis(TEXT("Move Right / Left"), this, &ThisClass::MoveRight);
+	PlayerInputComponent->BindAxis(TEXT("Turn Right / Left Gamepad"), this, &ThisClass::TurnRight);
+	PlayerInputComponent->BindAxis(TEXT("Turn Right / Left Mouse"), this, &ThisClass::TurnRight);
+	PlayerInputComponent->BindAxis(TEXT("Look Up / Down Gamepad"), this, &ThisClass::LookUp);
+	PlayerInputComponent->BindAxis(TEXT("Look Up / Down Mouse"), this, &ThisClass::LookUp);
+
 
 }
+
+void ARevenantCharacter::MoveForward(float Value)
+{
+
+	if (Controller != nullptr && Value != 0.0f)
+	{
+		const FRotator YawRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+		//getting the forward (X) direction based on controller direction
+		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X));
+		AddMovementInput(Direction, Value);
+	}
+
+}
+
+void ARevenantCharacter::MoveRight(float Value)
+{
+	if (Controller != nullptr && Value != 0.0f)
+	{
+		const FRotator YawRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+		//getting the Right (Y) direction based on controller direction
+		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y));
+		AddMovementInput(Direction, Value);
+	}
+}
+
+void ARevenantCharacter::TurnRight(float Value)
+{
+	AddControllerYawInput(Value);
+}
+
+void ARevenantCharacter::LookUp(float Value)
+{
+	AddControllerPitchInput(Value);
+}
+
 
