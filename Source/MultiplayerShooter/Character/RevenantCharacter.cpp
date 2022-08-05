@@ -4,6 +4,7 @@
 #include "RevenantCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ARevenantCharacter::ARevenantCharacter()
@@ -19,6 +20,9 @@ ARevenantCharacter::ARevenantCharacter()
 	followCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	followCamera->SetupAttachment(cameraBoom, USpringArmComponent::SocketName);
 	followCamera->bUsePawnControlRotation = false;
+
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 }
 
@@ -48,13 +52,10 @@ void ARevenantCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAxis(TEXT("Turn Right / Left Mouse"), this, &ThisClass::TurnRight);
 	PlayerInputComponent->BindAxis(TEXT("Look Up / Down Gamepad"), this, &ThisClass::LookUp);
 	PlayerInputComponent->BindAxis(TEXT("Look Up / Down Mouse"), this, &ThisClass::LookUp);
-
-
 }
 
 void ARevenantCharacter::MoveForward(float Value)
 {
-
 	if (Controller != nullptr && Value != 0.0f)
 	{
 		const FRotator YawRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
@@ -62,7 +63,6 @@ void ARevenantCharacter::MoveForward(float Value)
 		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X));
 		AddMovementInput(Direction, Value);
 	}
-
 }
 
 void ARevenantCharacter::MoveRight(float Value)
