@@ -32,6 +32,16 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	virtual void OnSphereOverlap(
+		UPrimitiveComponent* OverlapedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
 private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
@@ -41,7 +51,10 @@ private:
 	class USphereComponent* areaSphere;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	EWeaponState weaponStata;
+	EWeaponState weaponState;
+
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	class UWidgetComponent* pickupWidget;
 
 public:	
 

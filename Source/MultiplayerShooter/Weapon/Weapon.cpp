@@ -3,6 +3,9 @@
 
 #include "Weapon.h"
 #include "Components/SphereComponent.h"
+#include "Components/WidgetComponent.h"
+#include "MultiplayerShooter/Character/RevenantCharacter.h"
+
 
 // Sets default values
 AWeapon::AWeapon()
@@ -23,6 +26,9 @@ AWeapon::AWeapon()
 	areaSphere->SetupAttachment(RootComponent);
 	areaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	areaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	pickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Pickup Widget"));
+	pickupWidget->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -30,13 +36,29 @@ void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	
+
+	if (pickupWidget)
+	{
+		pickupWidget->SetVisibility(false);
+	}
+
 	//GetLocalRole() == ENetRole::ROLE_Authority is the same as HasAuthority();
 	if (HasAuthority())
 	{
 		areaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		areaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+		areaSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereOverlap);
 	}
+}
 
+void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlapedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ARevenantCharacter* RevenantCharREF = Cast<ARevenantCharacter>(OtherActor);
+
+	if (RevenantCharREF && pickupWidget)
+	{
+		pickupWidget->SetVisibility(true);
+	}
 
 }
 
