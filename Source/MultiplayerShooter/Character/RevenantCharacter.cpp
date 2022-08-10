@@ -6,6 +6,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "MultiplayerShooter/Weapon/Weapon.h"
 
 // Sets default values
 ARevenantCharacter::ARevenantCharacter()
@@ -30,6 +32,14 @@ ARevenantCharacter::ARevenantCharacter()
 
 }
 
+void ARevenantCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ARevenantCharacter, overlappingWeapon, COND_OwnerOnly);
+}
+
+
 // Called when the game starts or when spawned
 void ARevenantCharacter::BeginPlay()
 {
@@ -40,7 +50,6 @@ void ARevenantCharacter::BeginPlay()
 void ARevenantCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -56,6 +65,19 @@ void ARevenantCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAxis(TEXT("Turn Right / Left Mouse"), this, &ThisClass::TurnRight);
 	PlayerInputComponent->BindAxis(TEXT("Look Up / Down Gamepad"), this, &ThisClass::LookUp);
 	PlayerInputComponent->BindAxis(TEXT("Look Up / Down Mouse"), this, &ThisClass::LookUp);
+}
+
+void ARevenantCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
+{
+	if (overlappingWeapon)
+	{
+		overlappingWeapon->ShowPickupWidget(true);
+	}
+	if (LastWeapon)
+	{
+		LastWeapon->ShowPickupWidget(false);
+	}
+
 }
 
 void ARevenantCharacter::MoveForward(float Value)
@@ -88,6 +110,24 @@ void ARevenantCharacter::TurnRight(float Value)
 void ARevenantCharacter::LookUp(float Value)
 {
 	AddControllerPitchInput(Value);
+}
+
+void ARevenantCharacter::SetOverlappingWeapon(AWeapon* Weapon)
+{
+	if (overlappingWeapon)
+	{
+		overlappingWeapon->ShowPickupWidget(false);
+	}
+
+	overlappingWeapon = Weapon;
+
+	if (IsLocallyControlled())
+	{
+		if (overlappingWeapon)
+		{
+			overlappingWeapon->ShowPickupWidget(true);
+		}
+	}
 }
 
 

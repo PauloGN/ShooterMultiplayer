@@ -27,6 +27,7 @@ public:
 	AWeapon();
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	void ShowPickupWidget(bool bSwowWidget);
 
 protected:
 	// Called when the game starts or when spawned
@@ -40,6 +41,14 @@ protected:
 		int32 OtherBodyIndex,
 		bool bFromSweep,
 		const FHitResult& SweepResult
+	);
+
+	UFUNCTION()
+	virtual void OnSphereEndOverlap(
+		UPrimitiveComponent* OverlapedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
 	);
 
 private:

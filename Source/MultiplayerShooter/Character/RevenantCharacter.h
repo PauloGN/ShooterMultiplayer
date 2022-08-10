@@ -14,10 +14,13 @@ class MULTIPLAYERSHOOTER_API ARevenantCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ARevenantCharacter();
+	//Replication
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)const override;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -36,6 +39,12 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* overHeadWidget;
 
+	//Weapon section
+	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
+	class AWeapon* overlappingWeapon;
+	UFUNCTION()
+	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
+
 
 public:	
 
@@ -43,5 +52,7 @@ public:
 	void MoveRight(float Value);
 	void TurnRight(float Value);
 	void LookUp(float Value);
+
+	void SetOverlappingWeapon(AWeapon* Weapon);
 
 };
