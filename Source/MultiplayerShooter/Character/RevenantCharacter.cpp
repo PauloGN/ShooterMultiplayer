@@ -8,6 +8,7 @@
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "MultiplayerShooter/Weapon/Weapon.h"
+#include "MultiplayerShooter/CombatComponents/CombatComponent.h"
 
 // Sets default values
 ARevenantCharacter::ARevenantCharacter()
@@ -30,22 +31,10 @@ ARevenantCharacter::ARevenantCharacter()
 	overHeadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverHeadWidget"));
 	overHeadWidget->SetupAttachment(RootComponent);
 
+	combatComp = CreateAbstractDefaultSubobject<UCombatComponent>(TEXT("CombateComponent"));
+	combatComp->SetIsReplicated(true);
 }
 
-void ARevenantCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME_CONDITION(ARevenantCharacter, overlappingWeapon, COND_OwnerOnly);
-}
-
-
-// Called when the game starts or when spawned
-void ARevenantCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
 // Called every frame
 void ARevenantCharacter::Tick(float DeltaTime)
 {
@@ -56,7 +45,7 @@ void ARevenantCharacter::Tick(float DeltaTime)
 void ARevenantCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	
+
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ARevenantCharacter::Jump);
 
 	PlayerInputComponent->BindAxis(TEXT("Move Forward / Backward"), this, &ThisClass::MoveForward);
@@ -65,6 +54,34 @@ void ARevenantCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAxis(TEXT("Turn Right / Left Mouse"), this, &ThisClass::TurnRight);
 	PlayerInputComponent->BindAxis(TEXT("Look Up / Down Gamepad"), this, &ThisClass::LookUp);
 	PlayerInputComponent->BindAxis(TEXT("Look Up / Down Mouse"), this, &ThisClass::LookUp);
+
+	PlayerInputComponent->BindAction(TEXT("Equip"), IE_Pressed, this, &ARevenantCharacter::EquipButtonPressed);
+
+}
+void ARevenantCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ARevenantCharacter, overlappingWeapon, COND_OwnerOnly);
+}
+
+void ARevenantCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (combatComp)
+	{
+		combatComp->characterREF = this;
+	}
+
+}
+
+
+// Called when the game starts or when spawned
+void ARevenantCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	
 }
 
 void ARevenantCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
@@ -110,6 +127,15 @@ void ARevenantCharacter::TurnRight(float Value)
 void ARevenantCharacter::LookUp(float Value)
 {
 	AddControllerPitchInput(Value);
+}
+
+void ARevenantCharacter::EquipButtonPressed()
+{
+
+	if (combatComp && HasAuthority())
+	{
+		combatComp->EquipWeapon(overlappingWeapon);
+	}
 }
 
 void ARevenantCharacter::SetOverlappingWeapon(AWeapon* Weapon)

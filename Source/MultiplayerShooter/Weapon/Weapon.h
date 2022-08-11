@@ -67,4 +67,7 @@ private:
 
 public:	
 
+	FORCEINLINE void SetWeaponState(EWeaponState State){ weaponState = State; }
+
+
 };
