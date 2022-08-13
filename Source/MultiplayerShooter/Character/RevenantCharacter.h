@@ -48,6 +48,9 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCombatComponent* combatComp;
 
+	UFUNCTION(Server, Reliable)
+	void ServerEquipButtonPressed();
+
 public:	
 
 	void MoveForward(float Value);

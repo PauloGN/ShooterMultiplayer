@@ -61,7 +61,6 @@ void ARevenantCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void ARevenantCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
 	DOREPLIFETIME_CONDITION(ARevenantCharacter, overlappingWeapon, COND_OwnerOnly);
 }
 
@@ -73,15 +72,13 @@ void ARevenantCharacter::PostInitializeComponents()
 	{
 		combatComp->characterREF = this;
 	}
-
 }
 
 
 // Called when the game starts or when spawned
 void ARevenantCharacter::BeginPlay()
 {
-	Super::BeginPlay();
-	
+	Super::BeginPlay();	
 }
 
 void ARevenantCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
@@ -94,7 +91,14 @@ void ARevenantCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 	{
 		LastWeapon->ShowPickupWidget(false);
 	}
+}
 
+void ARevenantCharacter::ServerEquipButtonPressed_Implementation()
+{
+	if (combatComp)
+	{
+		combatComp->EquipWeapon(overlappingWeapon);
+	}
 }
 
 void ARevenantCharacter::MoveForward(float Value)
@@ -131,10 +135,16 @@ void ARevenantCharacter::LookUp(float Value)
 
 void ARevenantCharacter::EquipButtonPressed()
 {
-
-	if (combatComp && HasAuthority())
+	if (combatComp)
 	{
-		combatComp->EquipWeapon(overlappingWeapon);
+		if (HasAuthority())
+		{
+			combatComp->EquipWeapon(overlappingWeapon);
+		}
+		else
+		{
+			ServerEquipButtonPressed();
+		}
 	}
 }
 

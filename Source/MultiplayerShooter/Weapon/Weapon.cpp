@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "MultiplayerShooter/Character/RevenantCharacter.h"
+#include "Net/UnrealNetWork.h"
 
 
 // Sets default values
@@ -59,7 +60,6 @@ void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlapedComponent, AActor* O
 	{
 		RevenantCharREF->SetOverlappingWeapon(this);
 	}
-
 }
 
 void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlapedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -71,11 +71,40 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlapedComponent, AActor
 	}
 }
 
+void AWeapon::OnRep_WeaponState()
+{
+
+	switch (weaponState)
+	{
+	case EWeaponState::EWS_Equipped:
+		ShowPickupWidget(false);
+		break;
+	}
+
+}
+
+void AWeapon::SetWeaponState(EWeaponState State)
+{
+	weaponState = State;
+	switch (weaponState)
+	{
+	case EWeaponState::EWS_Equipped:
+		ShowPickupWidget(false);
+		areaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
+	}
+}
+
 // Called every frame
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
 
+void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AWeapon, weaponState);
 }
 
 void AWeapon::ShowPickupWidget(bool bSwowWidget)

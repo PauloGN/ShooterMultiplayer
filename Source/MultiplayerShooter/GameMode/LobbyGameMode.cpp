@@ -19,5 +19,4 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 			World->ServerTravel(FString("/Game/ThirdPerson/Maps/GameMap?listen"));
 		}
 	}
-
 }

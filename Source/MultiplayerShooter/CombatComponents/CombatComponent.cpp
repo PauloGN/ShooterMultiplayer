@@ -5,6 +5,7 @@
 #include "MultiplayerShooter/Weapon/Weapon.h"
 #include "MultiplayerShooter/Character/RevenantCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
@@ -33,17 +34,12 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquipe)
 
 	equippedWeapon = WeaponToEquipe;
 	equippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
-
 	const USkeletalMeshSocket* HandSocket = characterREF->GetMesh()->GetSocketByName(FName("RightHandSocket"));
-
 	if (HandSocket)
 	{
 		HandSocket->AttachActor(equippedWeapon, characterREF->GetMesh());
 	}
-
 	equippedWeapon->SetOwner(characterREF);
-	equippedWeapon->ShowPickupWidget(false);
-
 }
 
 

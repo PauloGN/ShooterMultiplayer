@@ -15,8 +15,10 @@ void UOverHeadWidget::SetDisplayText(FString textToDisplay)
 
 void UOverHeadWidget::ShowPlayerNetRole(APawn* InPawn)
 {
+	ENetRole ERemoteRole = InPawn->GetRemoteRole();
 	ENetRole ELocalRole = InPawn->GetLocalRole();
 	FString Role;
+	//FString PlayerName;
 
 	switch (ELocalRole)
 	{
@@ -45,7 +47,6 @@ void UOverHeadWidget::ShowPlayerNetRole(APawn* InPawn)
 
 void UOverHeadWidget::ShowPlayerName()
 {
-	
 	APlayerState* PlayerState = GetGameInstance()->GetFirstLocalPlayerController()->GetPlayerState<APlayerState>();
 
 	if (PlayerState)
