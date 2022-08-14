@@ -59,6 +59,8 @@ void ARevenantCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	PlayerInputComponent->BindAction(TEXT("Equip"), IE_Pressed, this, &ARevenantCharacter::EquipButtonPressed);
 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Pressed, this, &ARevenantCharacter::CrouchButtonPressed);
+	PlayerInputComponent->BindAction(TEXT("Aim"), IE_Pressed, this, &ARevenantCharacter::AimButtonPressed);
+	PlayerInputComponent->BindAction(TEXT("Aim"), IE_Released, this, &ARevenantCharacter::AimButtonReleased);
 
 }
 void ARevenantCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -155,11 +157,29 @@ void ARevenantCharacter::CrouchButtonPressed()
 {
 	if (bIsCrouched)
 	{
+		GEngine->AddOnScreenDebugMessage(1, 30, FColor::Blue, FString("Stand Up"));
 		UnCrouch();
 	}
 	else
 	{
+		GEngine->AddOnScreenDebugMessage(1, 30, FColor::Blue, FString("Crouch"));
 		Crouch();
+	}
+}
+
+void ARevenantCharacter::AimButtonPressed()
+{
+	if (combatComp)
+	{
+		combatComp->SetAiming(true);
+	}
+}
+
+void ARevenantCharacter::AimButtonReleased()
+{
+	if (combatComp)
+	{
+		combatComp->SetAiming(false);
 	}
 }
 
@@ -184,6 +204,11 @@ void ARevenantCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 bool ARevenantCharacter::IsWeaponEquipped()
 {
 	return (combatComp && combatComp->equippedWeapon);
+}
+
+bool ARevenantCharacter::IsAiming()
+{
+	return (combatComp && combatComp->bAiming);
 }
 
 

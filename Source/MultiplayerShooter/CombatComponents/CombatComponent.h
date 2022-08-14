@@ -26,11 +26,18 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	void SetAiming(bool bIsAiming);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetAiming(bool bIsAiming);
 private:
 
 	class ARevenantCharacter* characterREF;
 	UPROPERTY(Replicated)
 	AWeapon* equippedWeapon;
+
+	UPROPERTY(Replicated)
+	bool bAiming;
 
 public:	
 
