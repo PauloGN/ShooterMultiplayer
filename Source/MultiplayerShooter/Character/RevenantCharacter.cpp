@@ -166,4 +166,9 @@ void ARevenantCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 	}
 }
 
+bool ARevenantCharacter::IsWeaponEquipped()
+{
+	return (combatComp && combatComp->equippedWeapon);
+}
+
 

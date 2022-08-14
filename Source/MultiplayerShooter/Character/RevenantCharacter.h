@@ -60,5 +60,6 @@ public:
 	void EquipButtonPressed();
 
 	void SetOverlappingWeapon(AWeapon* Weapon);
+	bool IsWeaponEquipped();
 
 };
