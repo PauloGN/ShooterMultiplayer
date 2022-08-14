@@ -33,4 +33,5 @@ void URevenanteAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bIsInAir = revenantREF->GetCharacterMovement()->IsFalling();
 	bIsAccelerating = (revenantREF->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0 ? true : false);
 	bWeaponEquipped = revenantREF->IsWeaponEquipped();
+	bIsCrouched = revenantREF->bIsCrouched;
 }

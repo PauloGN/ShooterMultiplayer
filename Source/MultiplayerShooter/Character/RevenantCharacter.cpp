@@ -33,6 +33,8 @@ ARevenantCharacter::ARevenantCharacter()
 
 	combatComp = CreateAbstractDefaultSubobject<UCombatComponent>(TEXT("CombateComponent"));
 	combatComp->SetIsReplicated(true);
+
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 }
 
 // Called every frame
@@ -56,6 +58,7 @@ void ARevenantCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAxis(TEXT("Look Up / Down Mouse"), this, &ThisClass::LookUp);
 
 	PlayerInputComponent->BindAction(TEXT("Equip"), IE_Pressed, this, &ARevenantCharacter::EquipButtonPressed);
+	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Pressed, this, &ARevenantCharacter::CrouchButtonPressed);
 
 }
 void ARevenantCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -145,6 +148,18 @@ void ARevenantCharacter::EquipButtonPressed()
 		{
 			ServerEquipButtonPressed();
 		}
+	}
+}
+
+void ARevenantCharacter::CrouchButtonPressed()
+{
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+	else
+	{
+		Crouch();
 	}
 }
 
