@@ -4,7 +4,7 @@
 #include "RevenanteAnimInstance.h"
 #include "RevenantCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
+#include "Kismet/KismetMathLibrary.h"
 void URevenanteAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
@@ -35,4 +35,22 @@ void URevenanteAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bWeaponEquipped = revenantREF->IsWeaponEquipped();
 	bIsCrouched = revenantREF->bIsCrouched;
 	bAiming = revenantREF->IsAiming();
+
+	//Offset Yaw for strafing
+	FRotator AimRotation = revenantREF->GetBaseAimRotation();
+	FRotator MovimentRotation = UKismetMathLibrary::MakeRotFromX(revenantREF->GetVelocity());
+	//UE_LOG(LogTemp, Warning, TEXT("Aiming yaw %f"), AimRotation.Yaw);
+	FRotator DeltaRot = UKismetMathLibrary::NormalizedDeltaRotator(MovimentRotation, AimRotation);
+
+	deltaRotation = FMath::RInterpTo(deltaRotation, DeltaRot, DeltaTime, 6.0f);
+	yawOffSet = deltaRotation.Yaw;
+
+	characterRotationLastFrame = characterRotation;
+	characterRotation = revenantREF->GetActorRotation();
+
+	const FRotator Delta = UKismetMathLibrary::NormalizedDeltaRotator(characterRotation, characterRotationLastFrame);
+	const float Target = Delta.Yaw / DeltaTime;
+
+	const float Interp = FMath::FInterpTo(lean, Target, DeltaTime, 6.0f);
+	lean = FMath::Clamp(Interp, -90.0f, 90.f );
 }

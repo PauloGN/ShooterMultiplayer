@@ -40,5 +40,14 @@ private:
 	bool bIsCrouched;
 	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bAiming;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float yawOffSet;//drive the straffing
+	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float lean;
+
+	FRotator characterRotationLastFrame;
+	FRotator characterRotation;
+	FRotator deltaRotation;
 
 };

@@ -30,10 +30,15 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bIsAiming);
+
+	UFUNCTION()
+	void OnREp_EquippedWeapon();
+
 private:
 
 	class ARevenantCharacter* characterREF;
-	UPROPERTY(Replicated)
+
+	UPROPERTY(ReplicatedUsing = OnREp_EquippedWeapon)
 	AWeapon* equippedWeapon;
 
 	UPROPERTY(Replicated)
