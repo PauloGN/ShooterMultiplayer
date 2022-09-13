@@ -22,6 +22,7 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem() :
 
 void UMultiplayerSessionsSubsystem::CreateSession(int32 NumPublicConections, FString MatchType)
 {
+	//This function is called from Menu class\\
 
 	if (!sessionInterface.IsValid())
 	{
@@ -57,20 +58,22 @@ void UMultiplayerSessionsSubsystem::CreateSession(int32 NumPublicConections, FSt
 	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	if (!sessionInterface->CreateSession(*localPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *lastSessionSettings))
 	{
+		//Failing will take the followin actions (Clear delegate list and Broad cast custom delegate call back function)
 		sessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(createSessionCompleteDelegateHandle);
-		
 		//Broadcast our own custom delegate
 		multiplayerOnCreateSessionComplete.Broadcast(false);
 	}
-
-	if (GEngine)
+	else//Successfuly create a session sessionInterface->CreateSession(.....) returns true and calls the call back function
 	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			15.0f,
-			FColor::Yellow,
-			TEXT("Create Session Called...")
-		);
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.0f,
+				FColor::Green,
+				TEXT("Create Session Successfuly, calling calback OncreateSession Complete from MultiplayerSession Subsystem...")
+			);
+		}
 	}
 }
 
@@ -153,6 +156,7 @@ void UMultiplayerSessionsSubsystem::StartSession()
 {
 }
 
+//CALL BACK
 
 void UMultiplayerSessionsSubsystem::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
 {
@@ -162,6 +166,7 @@ void UMultiplayerSessionsSubsystem::OnCreateSessionComplete(FName SessionName, b
 		sessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(createSessionCompleteDelegateHandle);
 	}
 
+	//Broad cast the result to the world then the menu(listener) will perform the callback function in response
 	multiplayerOnCreateSessionComplete.Broadcast(bWasSuccessful);
 }
 

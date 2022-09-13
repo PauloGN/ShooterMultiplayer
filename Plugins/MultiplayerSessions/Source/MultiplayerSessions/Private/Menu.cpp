@@ -35,7 +35,6 @@ void UMenu::MenuSetup(int32 NumPublicConnections, FString MatchType, FString Pat
 	}
 
 	//Geting the MultiplayerSessionsSubsystem through the UGameInstance Class
-
 	UGameInstance* gameInstance = GetGameInstance();
 	if (gameInstance)
 	{
@@ -43,7 +42,7 @@ void UMenu::MenuSetup(int32 NumPublicConnections, FString MatchType, FString Pat
 		multiplayerSessionsSubsystem = gameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
 	}
 
-	//binding the callback to the delegate.
+	//binding custom callback to the delegate.
 	if (multiplayerSessionsSubsystem)
 	{
 		multiplayerSessionsSubsystem->multiplayerOnCreateSessionComplete.AddDynamic(this, &ThisClass::OnCreateSession);
@@ -62,6 +61,7 @@ bool UMenu::Initialize()
 		return false;
 	}
 
+	//binding the call back functions to especifics delegates existing on the UButton class.
 	if (Host_btn)
 	{
 		Host_btn->OnClicked.AddDynamic(this, &UMenu::Host_btnClicked);
@@ -81,7 +81,7 @@ void UMenu::OnLevelRemovedFromWorld(ULevel* Inlevel, UWorld* InWorld)
 	Super::OnLevelRemovedFromWorld(Inlevel, InWorld);
 }
 
-//Callbacks
+//CUSTOM Callbacks
 void UMenu::OnCreateSession(bool bWasSuccessful)
 {
 
@@ -210,7 +210,9 @@ void UMenu::OnStartSession(bool bWasSuccessful)
 
 void UMenu::Host_btnClicked()
 {
+	//disable button to avoid double click
 	Host_btn->SetIsEnabled(false);
+
 	if (multiplayerSessionsSubsystem)
 	{
 		multiplayerSessionsSubsystem->CreateSession(numPublicConnections, matchType);
@@ -241,7 +243,6 @@ void UMenu::MenuTearDown()
 			playerController->SetShowMouseCursor(false);
 		}
 	}
-
 }
 
 void UMenu::OpenLobby()

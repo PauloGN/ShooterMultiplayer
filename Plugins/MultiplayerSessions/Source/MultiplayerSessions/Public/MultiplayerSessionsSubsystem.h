@@ -53,7 +53,6 @@ protected:
 	// Internal Callbacks for the delegates tha are added to the online session interface delegate list
 	// these do not need to be called outside this class
 	//
-
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnFindSessionComplete(bool bWasSuccessful);
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);

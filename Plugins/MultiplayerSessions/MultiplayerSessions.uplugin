@@ -4,7 +4,7 @@
 	"VersionName": "1.0",
 	"FriendlyName": "MultiplayerSessions",
 	"Description": "A plugin to handling online multiplayer sessions - from Stephen Ulibarri course",
-	"Category": "Other",
+	"Category": "Multiplayer",
 	"CreatedBy": "Paulo R Santos",
 	"CreatedByURL": "",
 	"DocsURL": "",

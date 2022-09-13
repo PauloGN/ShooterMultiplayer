@@ -41,15 +41,14 @@ protected:
 
 private:
 
+	//bind buttons to the ones on the menu widgetBP
 	UPROPERTY(meta = (BindWidget))
 	class UButton* Host_btn;
-
 	UPROPERTY(meta = (BindWidget))
 	UButton* Join_btn;
-	
+	// Call Back functions to responde the buttons actions
 	UFUNCTION()
 	void Host_btnClicked();
-
 	UFUNCTION()
 	void Join_btnClicked();
 

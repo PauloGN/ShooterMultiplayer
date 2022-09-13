@@ -83,25 +83,25 @@ public:
 	//Pointer to the online session Interface
 	//TSharedPtr<class IOnlineSession, ESPMode::ThreadSafe> onlineSessionInterface; //forward declaration
 	//need to #include "Interfaces/OnlineSessionInterface.h"
-	IOnlineSessionPtr onlineSessionInterface;
+	IOnlineSessionPtr onlineSessionInterface;//ab
 protected:
 
 	UFUNCTION(BlueprintCallable)
-		void CreateGameSession();
+		void CreateGameSession();//A1
 
 	UFUNCTION(BlueprintCallable)
-		void JoinGameSession();
+		void JoinGameSession();//B1 -> FIND AND JOIN
 
 	//this function will be bound to the delegate variable
-	void OnCreateSessionComplete(FName sessionName, bool bWasSuccessful);
-	void OnFindSessionsComplete(bool bWasSuccessful);
-	void OnJoinSessionComplete(FName sessionName, EOnJoinSessionCompleteResult::Type result);
+	void OnCreateSessionComplete(FName sessionName, bool bWasSuccessful);//A3
+	void OnFindSessionsComplete(bool bWasSuccessful);//B3
+	void OnJoinSessionComplete(FName sessionName, EOnJoinSessionCompleteResult::Type result);//C1
 
 private:
 
 	//this is a delegate variable and a function will be bind to this
-	FOnCreateSessionCompleteDelegate createSessionCompleteDelegate;
-	FOnFindSessionsCompleteDelegate findSessionsCompleteDelegate;
-	TSharedPtr<FOnlineSessionSearch> sessionSearch;
-	FOnJoinSessionCompleteDelegate joinSessionCompleteDelegate;
+	FOnCreateSessionCompleteDelegate createSessionCompleteDelegate;//A2
+	FOnFindSessionsCompleteDelegate findSessionsCompleteDelegate;//B2
+	FOnJoinSessionCompleteDelegate joinSessionCompleteDelegate;//C2
+	TSharedPtr<FOnlineSessionSearch> sessionSearch;//b
 };

@@ -16,9 +16,9 @@
 // AMultiplayerShooterCharacter
 
 AMultiplayerShooterCharacter::AMultiplayerShooterCharacter() :
-	createSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete)),
-	findSessionsCompleteDelegate(FOnFindSessionsCompleteDelegate::CreateUObject(this, &ThisClass::OnFindSessionsComplete)),
-	joinSessionCompleteDelegate(FOnJoinSessionCompleteDelegate::CreateUObject(this,&ThisClass::OnJoinSessionComplete))
+	createSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete)),//A2'
+	findSessionsCompleteDelegate(FOnFindSessionsCompleteDelegate::CreateUObject(this, &ThisClass::OnFindSessionsComplete)),//B2'
+	joinSessionCompleteDelegate(FOnJoinSessionCompleteDelegate::CreateUObject(this,&ThisClass::OnJoinSessionComplete))//C2'
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -131,7 +131,7 @@ void AMultiplayerShooterCharacter::CallClientTravel(const FString& Address)
 	}
 }
 
-void AMultiplayerShooterCharacter::CreateGameSession()
+void AMultiplayerShooterCharacter::CreateGameSession() //A1'
 {
 	//Called when pressed the key 1
 	if (!onlineSessionInterface.IsValid())
@@ -146,8 +146,10 @@ void AMultiplayerShooterCharacter::CreateGameSession()
 		onlineSessionInterface->DestroySession(NAME_GameSession);
 	}
 
+	//A2'
 	onlineSessionInterface->AddOnCreateSessionCompleteDelegate_Handle(createSessionCompleteDelegate);
 
+	//Config session settings
 	TSharedPtr<FOnlineSessionSettings> sessionSettings = MakeShareable(new FOnlineSessionSettings());
 	sessionSettings->bIsLANMatch = false;
 	sessionSettings->NumPublicConnections = 4;
@@ -156,13 +158,15 @@ void AMultiplayerShooterCharacter::CreateGameSession()
 	sessionSettings->bShouldAdvertise = true;
 	sessionSettings->bUsesPresence = true;
 	sessionSettings->bUseLobbiesIfAvailable = true;
+	//ab
 	sessionSettings->Set(FName("MatchType"), FString("FreeForAll"), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 
-
+	//A2''
 	onlineSessionInterface->CreateSession(*localPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *sessionSettings);
 }
 
+//B1'
 void AMultiplayerShooterCharacter::JoinGameSession()
 {
 	//Find Game Session
@@ -171,7 +175,7 @@ void AMultiplayerShooterCharacter::JoinGameSession()
 		return;
 	}
 
-	onlineSessionInterface->AddOnFindSessionsCompleteDelegate_Handle(findSessionsCompleteDelegate);
+	onlineSessionInterface->AddOnFindSessionsCompleteDelegate_Handle(findSessionsCompleteDelegate);//B2'
 
 	sessionSearch = MakeShareable(new FOnlineSessionSearch());
 	sessionSearch->MaxSearchResults = 10000;
@@ -180,11 +184,11 @@ void AMultiplayerShooterCharacter::JoinGameSession()
 
 	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 
-	onlineSessionInterface->FindSessions(*localPlayer->GetPreferredUniqueNetId(), sessionSearch.ToSharedRef());
+	onlineSessionInterface->FindSessions(*localPlayer->GetPreferredUniqueNetId(), sessionSearch.ToSharedRef());//B3'
 
 }
 
-void AMultiplayerShooterCharacter::OnCreateSessionComplete(FName sessionName, bool bWasSuccessful)
+void AMultiplayerShooterCharacter::OnCreateSessionComplete(FName sessionName, bool bWasSuccessful)//A2'''
 {
 	if (bWasSuccessful)
 	{
@@ -198,7 +202,7 @@ void AMultiplayerShooterCharacter::OnCreateSessionComplete(FName sessionName, bo
 				FString::Printf(TEXT("Created Session %s"), *sessionName.ToString())
 			);
 		}
-
+		//Server travel //AAA
 		OpenLobby();
 	}
 	else
@@ -217,21 +221,21 @@ void AMultiplayerShooterCharacter::OnCreateSessionComplete(FName sessionName, bo
 
 }
 
-void AMultiplayerShooterCharacter::OnFindSessionsComplete(bool bWasSuccessful)
+void AMultiplayerShooterCharacter::OnFindSessionsComplete(bool bWasSuccessful)//B3'
 {
 
-	if (!onlineSessionInterface.IsValid())
+	if (!onlineSessionInterface.IsValid())//ab
 	{
 		return;
 	}
 
-	for (auto results:sessionSearch->SearchResults)
+	for (auto result:sessionSearch->SearchResults)//b
 	{
-		FString id = results.GetSessionIdStr();
-		FString user = results.Session.OwningUserName;
+		FString id = result.GetSessionIdStr();
+		FString user = result.Session.OwningUserName;
 
-		FString matchType;
-		results.Session.SessionSettings.Get(FName("MatchType"), matchType);
+		FString matchType;//ab
+		result.Session.SessionSettings.Get(FName("MatchType"), matchType);//ab
 
 		if (GEngine)
 		{
@@ -255,9 +259,9 @@ void AMultiplayerShooterCharacter::OnFindSessionsComplete(bool bWasSuccessful)
 				);
 			}
 			//Join Session
-			onlineSessionInterface->AddOnJoinSessionCompleteDelegate_Handle(joinSessionCompleteDelegate);
+			onlineSessionInterface->AddOnJoinSessionCompleteDelegate_Handle(joinSessionCompleteDelegate);//C2'
 			const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
-			onlineSessionInterface->JoinSession(*localPlayer->GetPreferredUniqueNetId(), NAME_GameSession, results);
+			onlineSessionInterface->JoinSession(*localPlayer->GetPreferredUniqueNetId(), NAME_GameSession, result);//C1
 		}
 	}
 }
@@ -270,7 +274,7 @@ void AMultiplayerShooterCharacter::OnJoinSessionComplete(FName sessionName, EOnJ
 	}
 
 	FString address;
-	if (onlineSessionInterface->GetResolvedConnectString(NAME_GameSession, address))
+	if (onlineSessionInterface->GetResolvedConnectString(NAME_GameSession, address))//gets the IP address to connect
 	{
 		if (GEngine)
 		{
@@ -281,6 +285,7 @@ void AMultiplayerShooterCharacter::OnJoinSessionComplete(FName sessionName, EOnJ
 				FString::Printf(TEXT("Connect string..."), *address)
 			);
 		}
+		//travel using the APlayerController* -> cliente travel
 		CallClientTravel(address);
 	}
 
